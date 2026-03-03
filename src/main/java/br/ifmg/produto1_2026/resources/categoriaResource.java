@@ -16,8 +16,8 @@ public class categoriaResource {
     public ResponseEntity<List<Categoria>> categorias(){
 
         Categoria categoria1 = new Categoria(1L, "notebook");
-        Categoria categoria2 = new Categoria(1L, "celular");
-        Categoria categoria3 = new Categoria(1L, "livros");
+        Categoria categoria2 = new Categoria(2L, "celular");
+        Categoria categoria3 = new Categoria(3L, "livros");
 
 
         List<Categoria> categorias = new ArrayList<Categoria>();
