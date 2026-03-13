@@ -32,7 +32,7 @@ public class StandartError {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 

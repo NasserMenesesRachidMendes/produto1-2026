@@ -3,9 +3,11 @@ package br.ifmg.produto1_2026.service;
 import br.ifmg.produto1_2026.dto.CategoryDTO;
 import br.ifmg.produto1_2026.entities.Category;
 import br.ifmg.produto1_2026.repositories.CategorieRepository;
+import br.ifmg.produto1_2026.service.exception.DataBaseError;
 import br.ifmg.produto1_2026.service.exception.ResourceNotFound;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class CategorieService {
+public class CategoryService {
 
     @Autowired
     private CategorieRepository categorieRepository;
@@ -28,7 +30,6 @@ public class CategorieService {
 
 //    for(Category category : categories){
 //        CategoryDTO.add(new CategoryDTO(category));
-
 //    }
      return categories.stream().map (x-> new CategoryDTO(x)).collect(Collectors.toList());
     }
@@ -37,5 +38,24 @@ public class CategorieService {
         Optional<Category> opt = categorieRepository.findById(id);
         Category category = opt.orElseThrow(() -> new ResourceNotFound("Categoria não encontrada"));
         return new CategoryDTO(category);
+    }
+    public CategoryDTO insert(CategoryDTO dto) {
+        Category category = new Category();
+        category.setNome(dto.getName());
+
+        Category category1 = categorieRepository.save(category);
+        return new CategoryDTO(category1);
+
+    }
+    @Transactional
+    public void delete(Long id) {
+        if (categorieRepository.existsById(id)){
+            throw new ResourceNotFound("Registro não encontrado, para exclusão");
+        }
+        try {
+            categorieRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e){
+            throw new DataBaseError(e.getMessage());
+        }
     }
 }
