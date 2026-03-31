@@ -1,33 +1,72 @@
 package br.ifmg.produto1_2026.resources;
 
-import br.ifmg.produto1_2026.entities.Categoria;
+import br.ifmg.produto1_2026.dto.CategoriaDTO;
+import br.ifmg.produto1_2026.service.CategoriaService;
+import br.ifmg.produto1_2026.service.exception.RegistroNaoEncontrado;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/categorias")
-public class categoriaResource {
+public class CategoriaResource {
+
+    @Autowired
+    private CategoriaService categoriaService;
+
     @GetMapping
-    public ResponseEntity<List<Categoria>> categorias(){
+    public ResponseEntity<Page<CategoriaDTO>> categorias(
+//            @RequestParam(value = "page", defaultValue = "0") Integer page,
+//            @RequestParam(value = "linesPerPage", defaultValue = "10") Integer linesPerPage,
+//            @RequestParam(value = "direction", defaultValue = "ASC") String direction,
+//            @RequestParam(value = "sort", defaultValue = "id") String sort
+            Pageable pageable
+    ) {
 
-        Categoria categoria1 = new Categoria(1L, "notebook");
-        Categoria categoria2 = new Categoria(2L, "celular");
-        Categoria categoria3 = new Categoria(3L, "livros");
+        Page<CategoriaDTO> categorias = categoriaService.findAll(pageable);
 
-
-        List<Categoria> categorias = new ArrayList<Categoria>();
-        categorias.add(categoria1);
-        categorias.add(categoria2);
-        categorias.add(categoria3);
         return ResponseEntity.ok().body(categorias);
-    };
+    }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoriaDTO> categoria(@PathVariable long id) {
+        CategoriaDTO dto = null;
+        try {
+            dto = categoriaService.findById(id);
+        }catch(RegistroNaoEncontrado e){
+            return ResponseEntity.notFound().build();
+        }
+        return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
+    @PostMapping
+    public ResponseEntity<CategoriaDTO> insert(
+            @RequestBody CategoriaDTO dto){
+                CategoriaDTO retorno = categoriaService.insert(dto);
 
+                URI location = ServletUriComponentsBuilder
+                                    .fromCurrentRequest()
+                                    .path("/{id}")
+                                    .buildAndExpand(retorno.getId())
+                                    .toUri();
 
+            return ResponseEntity.created(location).body(retorno);
+        }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable long id) {
+        categoriaService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoriaDTO> update(@PathVariable Long id, @RequestBody CategoriaDTO dto) {
+        CategoriaDTO retorno = categoriaService.update(id,dto);
+        return ResponseEntity.ok().body(retorno);
+    }
 }

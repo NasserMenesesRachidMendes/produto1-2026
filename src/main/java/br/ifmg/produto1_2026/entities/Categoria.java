@@ -1,17 +1,26 @@
 package br.ifmg.produto1_2026.entities;
-
 import jakarta.persistence.*;
 
+import java.time.Instant;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
-@Table(name ="tb_categoria")
+@Table(name = "tb_categoria")
 public class Categoria {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nome;
+
+    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    private Instant dataCriacao = Instant.now();
+    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    private Instant dataAtualizacao = Instant.now();
+
+    @ManyToMany(mappedBy = "categorias")
+    private Set<Produto> produtos = new HashSet<Produto>();
 
     public Categoria() {
     }
@@ -45,6 +54,24 @@ public class Categoria {
                 '}';
     }
 
+    public Instant getDataCriacao() {
+        return dataCriacao;
+    }
+
+    public Instant getDataAtualizacao() {
+        return dataAtualizacao;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.dataCriacao = Instant.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.dataAtualizacao = Instant.now();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -56,5 +83,6 @@ public class Categoria {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
 }
 
