@@ -33,9 +33,9 @@ public class ProductDTO {
         this.price = product.getPrice();
         this.imgUrl = product.getImgUrl();
         product.
-            getCategories().
+                getCategories().
                 forEach(
-            category -> this.categories.add(new CategoryDTO(category)));
+                        category -> this.categories.add(new CategoryDTO(category)));
     }
 
     public Long getId() {
