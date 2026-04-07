@@ -17,14 +17,14 @@ import java.net.URI;
 @RequestMapping("/sales")
 public class SalesResource {
 
-   private ActivationClientService activationClientService;
+    private ActivationClientService activationClientService;
 
-   public SalesResource(ActivationClientService activationClientService) {
-       this.activationClientService = activationClientService;
-       System.out.println("Camada de resource");
-   }
-   @PostMapping
-   public ResponseEntity<String>insert(@RequestBody UserDTO dto){
+    public SalesResource(ActivationClientService activationClientService) {
+        this.activationClientService = activationClientService;
+        System.out.println("Camada de resource");
+    }
+    @PostMapping
+    public ResponseEntity<String>insert(@RequestBody UserDTO dto){
         User user = new User();
         user.setName("fulano");
         user.setPhone("123456789");

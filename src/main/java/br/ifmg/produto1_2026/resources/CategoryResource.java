@@ -24,7 +24,7 @@ public class CategoryResource {
 //            @RequestParam(value = "size", defaultValue = "10") Integer size,
 //            @RequestParam(value = "direction", defaultValue = "ASC") String direction,
 //            @RequestParam(value = "sort", defaultValue = "id") String sort)
-              Pageable pageable
+            Pageable pageable
     ){
 
 
