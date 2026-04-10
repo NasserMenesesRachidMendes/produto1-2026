@@ -1,8 +1,9 @@
 package br.ifmg.produto1_2026.util;
 
 import br.ifmg.produto1_2026.entities.User;
+import org.springframework.beans.factory.annotation.Qualifier;
 
-//@Component
+//@Qualifier
 public class NotificationSms implements Notificator {
     private boolean upperCase;
 
