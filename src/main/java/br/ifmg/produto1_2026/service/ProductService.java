@@ -6,12 +6,15 @@ import br.ifmg.produto1_2026.entities.Category;
 import br.ifmg.produto1_2026.entities.Product;
 import br.ifmg.produto1_2026.repositories.CategoryRepository;
 import br.ifmg.produto1_2026.repositories.ProductRepository;
+import br.ifmg.produto1_2026.resources.ProductResource;
 import br.ifmg.produto1_2026.resources.exception.databaseException;
 import br.ifmg.produto1_2026.service.exception.ResourceNotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,10 +28,15 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Page<ProductDTO> findAll(Pageable pageable) {
 
+
         Page<Product> products = productRepository.findAll(pageable);
 
-        return products.map(ProductDTO::new);
+        return products.map(p-> new ProductDTO(p)
+                .add(linkTo(methodOn(ProductResource.class).findAll(null)).withSelfRel())
+                .add(linkTo(methodOn(ProductResource.class).findById(p.getId())).withRel("deter produto por ID"))
 
+
+        );
     }
 
     @Transactional(readOnly = true)
@@ -37,8 +45,14 @@ public class ProductService {
         Product p = productRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFound("Produto não encotrado "));
+        ProductDTO dto = new ProductDTO(p);
 
-        return new ProductDTO(p);
+        return dto
+                .add(linkTo (methodOn(ProductResource.class).findById(id)).withSelfRel())
+                .add(linkTo(methodOn(ProductResource.class).findAll(null)).withRel("Todos os produtos"))
+                .add(linkTo(methodOn (ProductResource.class).update(p.getId(),null)).withRel("Atualizar produto"))
+                .add(linkTo(methodOn(ProductResource.class).delete(p.getId())).withRel("Apagar produto"));
+
     }
 
     @Transactional
@@ -56,8 +70,13 @@ public class ProductService {
             product.getCategories().add(category);
         }
 
-        productRepository.save(product);
-        return new ProductDTO(product);
+        product = productRepository.save(product);
+        return new ProductDTO(product)
+                .add(linkTo (methodOn(ProductResource.class).insert(productDTO)).withSelfRel())
+                .add(linkTo (methodOn(ProductResource.class).findById(product.getId())).withSelfRel())
+                .add(linkTo(methodOn(ProductResource.class).findAll(null)).withRel("Todos os produtos"))
+                .add(linkTo(methodOn (ProductResource.class).update(product.getId(),null)).withRel("Atualizar produto"))
+                .add(linkTo(methodOn(ProductResource.class).delete(product.getId())).withRel("Apagar produto"));
     }
 
     @Transactional
@@ -87,7 +106,11 @@ public class ProductService {
         entity.setPrice(dto.getPrice());
         entity.setImgUrl(dto.getImgUrl());
 
-        productRepository.save(entity);
-        return new ProductDTO(entity);
+        entity = productRepository.save(entity);
+        return new ProductDTO(entity)
+                .add(linkTo (methodOn(ProductResource.class).findById(entity.getId())).withSelfRel())
+                .add(linkTo(methodOn(ProductResource.class).findAll(null)).withRel("Todos os produtos"))
+                .add(linkTo(methodOn (ProductResource.class).update(entity.getId(),null)).withRel("Atualizar produto"))
+                .add(linkTo(methodOn(ProductResource.class).delete(entity.getId())).withRel("Apagar produto"));
     }
 }
