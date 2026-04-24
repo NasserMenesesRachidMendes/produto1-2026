@@ -9,6 +9,8 @@ import br.ifmg.produto1_2026.repositories.ProductRepository;
 import br.ifmg.produto1_2026.resources.ProductResource;
 import br.ifmg.produto1_2026.resources.exception.databaseException;
 import br.ifmg.produto1_2026.service.exception.ResourceNotFound;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
+
     @Autowired
     private ProductRepository productRepository;
     @Autowired
@@ -28,7 +33,10 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Page<ProductDTO> findAll(Pageable pageable) {
 
-
+        logger.info("Consultando a lista de produtos");
+        logger.error("Consultando a lista de produtos");
+        logger.warn("Consultando a lista de produtos");
+        logger.debug("Consultando a lista de produtos ");
         Page<Product> products = productRepository.findAll(pageable);
 
         return products.map(p-> new ProductDTO(p)
