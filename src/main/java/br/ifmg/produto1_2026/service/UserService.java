@@ -2,6 +2,7 @@ package br.ifmg.produto1_2026.service;
 
 import br.ifmg.produto1_2026.dto.PerfilDTO;
 import br.ifmg.produto1_2026.dto.UserDTO;
+import br.ifmg.produto1_2026.dto.UserInsertDTO;
 import br.ifmg.produto1_2026.entities.Perfil;
 import br.ifmg.produto1_2026.entities.User;
 import br.ifmg.produto1_2026.repositories.PerfilRepository;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,8 @@ public class UserService {
     @Autowired
     private PerfilRepository perfilRepository;
 
+        @Autowired
+        private PasswordEncoder enconder;
     @Transactional(readOnly = true)
     public Page<UserDTO> findAll(Pageable pageable) {
 
@@ -42,21 +46,27 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO insert(UserDTO userDTO) {
+    public UserDTO insert(UserInsertDTO dto) {
 
         User user = new User();
-        user.setName(userDTO.getName());
-        user.setPhone(userDTO.getPhone());
-        user.setEmail(userDTO.getEmail());
+        copyDtoEntity(dto,user);
+        user.setPassword(enconder.encode(dto.getPassword()));
 
-        for(PerfilDTO dto : userDTO.getPerfils()){
-            Perfil perfil = perfilRepository.getReferenceById(dto.getId());
-            user.getPerfils().add(perfil);
-        }
 
         userRepository.save(user);
 
         return new UserDTO(user);
+    }
+
+    private void copyDtoEntity(UserDTO dto, User user) {
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setPhone(dto.getPhone());
+        user.getPerfils().clear();
+        for (PerfilDTO dtoPerfil : dto.getPerfils()) {
+            Perfil perfil = perfilRepository.getReferenceById(dtoPerfil.getId());
+            user.getPerfils().add(perfil);
+        }
     }
 
     @Transactional
@@ -79,13 +89,11 @@ public class UserService {
             throw new ResourceNotFound("Registro não encontrado" );
         }
 
-        User entity = userRepository.getReferenceById(id);
+        User user = userRepository.getReferenceById(id);
 
-        entity.setName(dto.getName());
-        entity.setPhone(dto.getPhone());
-        entity.setEmail(dto.getEmail());
+        copyDtoEntity(dto,user);
 
-        userRepository.save(entity);
-        return new UserDTO(entity);
+        userRepository.save(user);
+        return new UserDTO(user);
     }
 }

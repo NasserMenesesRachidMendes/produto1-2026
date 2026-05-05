@@ -24,7 +24,7 @@ public class User {
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant updated_at;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "tb_user_perfil",
             joinColumns = @JoinColumn(name = "id_user"),
@@ -105,6 +105,12 @@ public class User {
         this.updated_at = Instant.now();
     }
 
+    public void addRole(Perfil perfil) {
+        this.perfils.add(perfil);
+    }
+    public void hasRole(Perfil perfil) {
+        this.perfils.contains(perfil);
+    }
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
