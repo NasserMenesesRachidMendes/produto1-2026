@@ -4,8 +4,6 @@ insert into tb_category (nome,created_at) values ('Lapis', NOW());
 insert into tb_category (nome,created_at) values ('Borrachas', NOW());
 insert into tb_category (nome,created_at) values ('Isqueiro', NOW());
 
-
-
 insert into tb_product (name, description, price, img_url,created_at) values ('ESTRELA01', 'BRINQUEDO ELETRICO', 30.40, 'LINKDAIMAGEM', NOW());
 insert into tb_product (name, description, price, img_url,created_at) values ('ESTRELA02', 'BRINQUEDO ELETRICO', 30.40, 'LINKDAIMAGEM', NOW());
 insert into tb_product (name, description, price, img_url,created_at) values ('ESTRELA03', 'BRINQUEDO ELETRICO', 30.40, 'LINKDAIMAGEM', NOW());
