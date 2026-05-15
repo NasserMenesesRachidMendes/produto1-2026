@@ -23,6 +23,9 @@ public class Perfil implements GrantedAuthority {
 
     public Perfil() {}
 
+    public Perfil(String roleId, String authority) {
+    }
+
     public Long getId() {
         return id;
     }

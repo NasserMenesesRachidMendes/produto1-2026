@@ -30,8 +30,9 @@ public class UserService implements UserDetailsService {
     @Autowired
     private PerfilRepository perfilRepository;
 
-        @Autowired
-        private PasswordEncoder enconder;
+    @Autowired
+    private PasswordEncoder encoder;
+
     @Transactional(readOnly = true)
     public Page<UserDTO> findAll(Pageable pageable) {
 
@@ -55,22 +56,22 @@ public class UserService implements UserDetailsService {
     public UserDTO insert(UserInsertDTO dto) {
 
         User user = new User();
-        copyDtoEntity(dto,user);
-        user.setPassword(enconder.encode(dto.getPassword()));
-
+        copyDtoToUser(dto, user);
+        user.setPassword(encoder.encode(dto.getPassword()));
 
         userRepository.save(user);
 
         return new UserDTO(user);
     }
 
-    private void copyDtoEntity(UserDTO dto, User user) {
+    private void copyDtoToUser(UserDTO dto, User user) {
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
+
         user.setPhone(dto.getPhone());
         user.getPerfils().clear();
-        for (PerfilDTO dtoPerfil : dto.getPerfils()) {
-            Perfil perfil = perfilRepository.getReferenceById(dtoPerfil.getId());
+        for(PerfilDTO perfilDTO : dto.getPerfils()){
+            Perfil perfil = perfilRepository.getReferenceById(perfilDTO.getId());
             user.getPerfils().add(perfil);
         }
     }
@@ -97,7 +98,7 @@ public class UserService implements UserDetailsService {
 
         User user = userRepository.getReferenceById(id);
 
-        copyDtoEntity(dto,user);
+        copyDtoToUser(dto, user);
 
         userRepository.save(user);
         return new UserDTO(user);
@@ -106,13 +107,21 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        List<UserDetailsProjection> dados = userRepository.loadUserByUsername(username);
+        List<UserDetailsProjection> dbData =
+                userRepository.loadUserByUsername(username);
 
-        if(dados.isEmpty()){
+        if(dbData.isEmpty()) {
             throw new UsernameNotFoundException(username);
         }
-
         User user = new User();
+        user.setPassword(dbData.get(0).getPassword());
+        user.setEmail(dbData.get(0).getUsername());
+
+        for(UserDetailsProjection data: dbData) {
+            user.addRole(
+                    new Perfil(data.getRoleId(), data.getAuthority())
+            );
+        }
 
         return null;
     }
