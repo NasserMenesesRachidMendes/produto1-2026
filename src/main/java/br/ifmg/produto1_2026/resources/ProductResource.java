@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -71,6 +72,7 @@ public class ProductResource {
             }
 
     )
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR','ROLE_SALESMAN")
     public ResponseEntity<ProductDTO> insert(@RequestBody @Valid ProductDTO dto) {
         ProductDTO returnDTO =  productService.insert(dto);
 
@@ -95,6 +97,7 @@ public class ProductResource {
                     @ApiResponse( description = "Erro ao processar",responseCode = "422"),
             }
     )
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR','ROLE_SALESMAN")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         productService.delete(id);
         return ResponseEntity.noContent().build();
@@ -112,6 +115,7 @@ public class ProductResource {
             }
 
     )
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR','ROLE_SALESMAN")
     public ResponseEntity<ProductDTO> update(@PathVariable Long id, @RequestBody @Valid ProductDTO dto) {
         ProductDTO returnDTO =  productService.update(id, dto);
         return ResponseEntity.ok().body(returnDTO);
