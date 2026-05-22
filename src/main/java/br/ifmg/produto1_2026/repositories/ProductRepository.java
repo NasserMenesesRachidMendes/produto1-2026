@@ -1,6 +1,7 @@
 package br.ifmg.produto1_2026.repositories;
 
 import br.ifmg.produto1_2026.entities.Product;
+import br.ifmg.produto1_2026.projections.ProductProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -40,6 +41,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                     INNER JOIN tb_category c ON c.id = pc.id_category
                     WHERE (:categoriesID IS NULL OR pc.id_category in(:categoriesID))
                     AND( LOWER(p.name) LIKE LOWER('%',:name,'%'))) as tb_result
-                    """
-    Page<ProductProjection> searchProduct(List<Long> categoriesID, String name, Pageable categories)
+                    """)
+    Page<ProductProjection> searchProduct(List<Long> categoriesID, String name, Pageable categories);
 }
