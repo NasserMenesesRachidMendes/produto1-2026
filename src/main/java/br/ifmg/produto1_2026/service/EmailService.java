@@ -29,4 +29,10 @@ public class EmailService {
         mailSender.send(message);
 
     }
+
+
+
+
+    public void sendEmail(EmailDTO recuperaçãoDeSenha) {
+    }
 }

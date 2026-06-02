@@ -21,6 +21,7 @@ import java.net.URI;
 @RequestMapping("/products")
 @Tag(name="Produtos")
 public class ProductResource {
+
     @GetMapping
     @Operation(
             description = "retorna todos os produtos",
@@ -31,11 +32,22 @@ public class ProductResource {
             }
 
     )
-    public ResponseEntity<Page<ProductListDTO>> findAll(@RequestParam(value = "categoriesId", defaultValue = "0")String categoriesId, @RequestParam(value = "name", defaultValue = "")String name, Pageable pageable ) {
+    public ResponseEntity<Page<ProductListDTO>> findAll(@RequestParam(value = "categoriesId", defaultValue = "0") String categoriesId,@RequestParam(value = "name", defaultValue = "") String name, Pageable pageable) {
         Page<ProductListDTO> products =  productService.findAll(categoriesId, name, pageable);
 
         return ResponseEntity.ok().body(products);
     }
+
+    @GetMapping(value = "/v1/")
+    @Operation(
+            description = "retorna todos os produtos",
+            summary = "Endpoint para listar um produtos",
+            responses = {
+                    @ApiResponse( description = "Lista retornada com sucesso",responseCode = "200"),
+                    @ApiResponse( description = "Erro interno",responseCode = "500", content = {}),
+            }
+
+    )
     public ResponseEntity<Page<ProductDTO>> findAll(Pageable pageable) {
         Page<ProductDTO> products =  productService.findAll(pageable);
 
@@ -65,6 +77,7 @@ public class ProductResource {
         return ResponseEntity.ok().body(dto);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR', 'ROLE_SALESMAN')")
     @PostMapping(produces = "application/json")
     @Operation(
             description = "A plataforma precisa disponibilizar um cadastro de produtos",
@@ -78,7 +91,6 @@ public class ProductResource {
             }
 
     )
-    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR','ROLE_SALESMAN")
     public ResponseEntity<ProductDTO> insert(@RequestBody @Valid ProductDTO dto) {
         ProductDTO returnDTO =  productService.insert(dto);
 
@@ -91,37 +103,42 @@ public class ProductResource {
         return ResponseEntity.created(location).body(returnDTO);
     }
 
-    @DeleteMapping(value = "/id")
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR', 'ROLE_SALESMAN')")
+    @DeleteMapping("/id")
     @Operation(
             description = "A plataforma precisa disponibilizar deleção de produtos",
             summary = "Endpoint para deletar um produto",
             responses = {
-                    @ApiResponse( description = "SUCESSO",responseCode = "204"),
+                    @ApiResponse( description = "Sucesso",responseCode = "204"),
                     @ApiResponse( description = "Requisição mal feita",responseCode = "400", content = {}),
                     @ApiResponse( description = "Não autorizado",responseCode = "401"),
                     @ApiResponse( description = "Proibido no seu perfil",responseCode = "403"),
-                    @ApiResponse( description = "Erro ao processar",responseCode = "422"),
-            }
-    )
-    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR','ROLE_SALESMAN")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        productService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-    @PutMapping(value = "/id",produces = "application/json")
-    @Operation(
-            description = "A plataforma precisa disponibilizar atualização de produtos",
-            summary = "Endpoint para autualizar um produto",
-            responses = {
-                    @ApiResponse( description = "OK",responseCode = "200"),
-                    @ApiResponse( description = "Requisição mal feita",responseCode = "400", content = {}),
-                    @ApiResponse( description = "Não autorizado",responseCode = "401"),
-                    @ApiResponse( description = "Proibido no seu perfil",responseCode = "403"),
+                    @ApiResponse( description = "Não encontrado",responseCode = "404"),
                     @ApiResponse( description = "Erro ao processar",responseCode = "422"),
             }
 
     )
-    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR','ROLE_SALESMAN")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        productService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATOR', 'ROLE_SALESMAN')")
+    @PutMapping(value = "/id", produces = "application/json")
+    @Operation(
+            description = "A plataforma precisa disponibilizar atualização de produtos",
+            summary = "Endpoint para atualizar um produto",
+            responses = {
+                    @ApiResponse( description = "Ok",responseCode = "200"),
+                    @ApiResponse( description = "Requisição mal feita",responseCode = "400", content = {}),
+                    @ApiResponse( description = "Não autorizado",responseCode = "401"),
+                    @ApiResponse( description = "Proibido no seu perfil",responseCode = "403"),
+                    @ApiResponse( description = "Não encontrado",responseCode = "404"),
+                    @ApiResponse( description = "Erro ao processar",responseCode = "422"),
+            }
+
+    )
     public ResponseEntity<ProductDTO> update(@PathVariable Long id, @RequestBody @Valid ProductDTO dto) {
         ProductDTO returnDTO =  productService.update(id, dto);
         return ResponseEntity.ok().body(returnDTO);
