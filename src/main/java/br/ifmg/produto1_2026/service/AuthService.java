@@ -20,6 +20,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -89,4 +90,13 @@ public class AuthService {
         return new UserDTO(user);
     }
 
+    public void saveNewPassword(@Valid NewPasswordDTO dto) {
+        List<PasswordRecover>list = passwordRecoverRepository.searchValidTokens(dto.getToken(), Instant.now());
+
+        if(list.isEmpty()){
+            throw new ResourceNotFound("Token not found or expired");
+        }
+        User user = userRepository.findByEmail(list.getFirst().getEmail());
+        user.setPassword(encoder.encode(dto.getPassword()));
+    }
 }
